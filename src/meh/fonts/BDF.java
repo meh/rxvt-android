@@ -75,6 +75,11 @@ public class BDF
 			return _map.put(name, new Property(name, value));
 		}
 
+		public Property remove (String name)
+		{
+			return _map.remove(name);
+		}
+
 		public Iterator<Property> iterator ()
 		{
 			return _map.values().iterator();
@@ -208,10 +213,6 @@ public class BDF
 
 	public BDF (BufferedReader buffer) throws IOException
 	{
-		_properties = new Properties();
-		_comments   = new LinkedList<String>();
-		_glyphs     = new TreeMap<Integer, Glyph>();
-
 		boolean in_font       = false;
 		boolean in_properties = false;
 		Glyph   in_char       = null;
@@ -357,14 +358,14 @@ public class BDF
 	private String _format;
 	private int    _length;
 
-	private List<String> _comments;
+	private List<String> _comments = new LinkedList<String>();
 
 	private String _name;
 	private String _version;
 
 	private BoundingBox _bounding_box;
 
-	private Properties _properties;
+	private Properties _properties = new Properties();
 
-	private TreeMap<Integer, Glyph> _glyphs;
+	private TreeMap<Integer, Glyph> _glyphs = new TreeMap<Integer, Glyph>();
 }
