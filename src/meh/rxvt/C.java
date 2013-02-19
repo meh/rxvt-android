@@ -58,11 +58,6 @@ public class C
 				super();
 			}
 
-			public winsize (Pointer pointer)
-			{
-				super(pointer);
-			}
-
 			@Field(0)
 			public short row ()
 			{
@@ -129,11 +124,6 @@ public class C
 			public termios ()
 			{
 				super();
-			}
-
-			public termios (Pointer pointer)
-			{
-				super(pointer);
 			}
 
 			@Field(0)
