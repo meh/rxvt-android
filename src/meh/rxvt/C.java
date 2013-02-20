@@ -23,7 +23,7 @@ public class C
 		public static int FD_CLOEXEC = 1;
 		public static int F_SETFD    = 2;
 
-		public static native int open (Pointer<Byte> path, int flags, Object... args);
+		public static native int open (Pointer<Byte> path, int flags);
 		public static native int close (int fd);
 		public static native int fcntl (int fildes, int cmd, Object... args);
 		public static native int setsid ();
