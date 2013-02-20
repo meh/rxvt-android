@@ -265,7 +265,12 @@ public class C
 	{
 		public static FileDescriptor create (String command, String[] args, String[] env, int[] id)
 		{
-			int ptm = Native.open(pointerToCString("/dev/ptmx"), Native.O_RDWR);
+			int ptm;
+			{
+				Pointer<Byte> path_ = pointerToCString("/dev/ptmx");
+				ptm = Native.open(path_, Native.O_RDWR);
+				path_.release();
+			}
 
 			if (ptm < 0) {
 				return FileDescriptor.Invalid;
@@ -282,6 +287,10 @@ public class C
 				return FileDescriptor.Invalid;
 			}
 
+			Pointer<Byte>          command_ = pointerToCString(command);
+			Pointer<Pointer<Byte>> args_    = pointerToCStrings(args);
+			Pointer<Pointer<Byte>> env_     = pointerToCStrings(env);
+
 			int pid = Native.fork();
 			if (pid == 0) {
 				Native.close(ptm);
@@ -297,12 +306,24 @@ public class C
 				Native.dup2(pts, 1);
 				Native.dup2(pts, 2);
 
-				Native.execve(pointerToCString(command), pointerToCStrings(args), pointerToCStrings(env));
+				Native.execve(command_, args_, env_);
 				Native.exit(-1);
 			}
 			else {
 				id[0] = pid;
 			}
+
+			command_.release();
+
+			for (Pointer<Byte> p : args_) {
+				p.release();
+			}
+			args_.release();
+
+			for (Pointer<Byte> p : env_) {
+				p.release();
+			}
+			env_.release();
 
 			return new FileDescriptor(ptm);
 		}
@@ -318,11 +339,16 @@ public class C
 
 			Native.waitpid(process, status, 0);
 
-			if (Native.WIFEXITED(status.getInt()) == 0) {
-				return Native.WEXITSTATUS(status.getInt());
-			}
+			try {
+				if (Native.WIFEXITED(status.getInt()) == 0) {
+					return Native.WEXITSTATUS(status.getInt());
+				}
 
-			return 0;
+				return 0;
+			}
+			finally {
+				status.release();
+			}
 		}
 
 		public static void hangup (int process)
